@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="index.css">
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>タイピングアプリ</title>
+  </head>
+  <body>
+    <h1 class="title">■言語タイピングゲーム</h1>
+      <div class="main-box">
+        <!-- <p id="result">残り時間</p> -->
+        <div id="time">00:00:00.000</div>
+    <p id="text"></p>
+    </div>
+    <div class="timer">
+      <input id="start" type="button" value="start">
+      <!-- <input id="stop" type="button" value="stop"> -->
+      <input id="reset" type="button" value="reset">     
+    </div>
+
+<!-- //jqueryを読み込ませる -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<!-- jQueryが書いてあるファイル↓ -->
+<script src="script.js"></script>
+   <script>
+
+    const timeElement = document.getElementById('time');
+    const start = document.getElementById('start');
+    const stop = document.getElementById('stop');
+    const reset = document.getElementById('reset');
+
+    let time = 30000;
+
+let remaining = time;
+
+
+let intervalId  = null;
+
+function updateTime(){
+    const ms = remaining % 1000;
+    const s = Math.floor(remaining / 1000) % 60;
+    const m = Math.floor(remaining / (1000*60)) % 60;
+    const h = Math.floor(remaining / (1000*60*60));
+
+    const msStr = ms.toString().padStart(3, '0');
+    const sStr = s.toString().padStart(2, '0');
+    const mStr = m.toString().padStart(2, '0');
+    const hStr = h.toString().padStart(2, '0');
+
+    timeElement.innerHTML = `${hStr}:${mStr}:${sStr}.${msStr}`;
+}
+
+function gameStart(){
+  let pre = new Date();
+    intervalId = setInterval(function(){
+            const now = new Date();
+            remaining -= now - pre;
+            if(remaining < 0){
+              gameEnd();
+            }                                 
+            pre = now;
+            updateTime();
+    }, 10);
+
+    document.addEventListener('keydown', keyDown);
+
+    next();
+    
+    function keyDown(e) {
+//キーボードからの入力は「e.key」に格納されている
+if(e.key !== checkTexts[0].textContent) {
+    missType += 1;
+    return;
+}
+
+if(e.key === checkTexts[0].textContent) {
+    checkTexts[0].className = 'add-blue';
+    
+     
+    
+    //0番目の配列要素を削除して、次の1文字を比較対象にする
+    checkTexts.shift();
+
+    //配列要素が空っぽになったら次の問題を出す
+    if(!checkTexts.length) createText();
+    cleaCount += 1;
+    
+}
+}
+}
+
+start.addEventListener('click', function(e){
+    if (intervalId !== null){
+      return; 
+
+    }
+    gameStart();
+})
+
+function gameEnd(){
+  remaining = 0;
+  updateTime();
+  clearInterval(intervalId);
+  intervalId = null;
+  alert(`終了です！誤タイプ数：${missType},正タイプ数：${cleaCount}個です！`);
+  document.removeEventListener('keydown',keyDowncallback)
+}
+
+// stop.addEventListener('click', function(e){
+//     clearInterval(intervalId);
+//     intervalId = null;
+// });
+
+reset.addEventListener('click', function(e){
+
+  clearInterval(intervalId);
+  intervalId = null;
+    remaining = time;
+    updateTime();
+    next();
+});
+
+
+
+
+
+
+
+
+
+
+
+var p = document.getElementById('text');
+
+
+
+//タイピングする文字列をここで用意しておく
+var textLists = [
+    'rails _6.0.0_ new app -d mysql',
+    'rails db:create',
+    'rails db:rollback',
+    'setAttribute("style", "color: red;")',
+    'debugger',
+    'binding.pry',
+    'rails g model test --skip -migration',
+    'bundle install',
+    'rails g rspec:install',
+    'pry-rails',
+    'git init'
+];
+var checkTexts = [];
+
+let cleaCount = 0;
+
+let missType = 0;
+
+// let TIME = 20;
+
+function next(){
+  textContent = '';
+  checkTexts = nextString();
+  updatecreateText();
+}
+
+createText();
+
+function createText() {
+    //文字列をランダムに取得する
+    var rnd = Math.floor(Math.random() * textLists.length);
+
+    //前の文字列を削除してから次の文字列を表示する
+    p.textContent = '';
+    
+    //文字列を1文字ずつに分解して、それぞれにspanタグを挿入する
+    checkTexts = textLists[rnd].split('').map(function(value) {
+        var span = document.createElement('span');
+
+        span.textContent = value;
+        p.appendChild(span);
+        
+
+        return span;
+
+        
+    });
+}   </script>
+    
+  </body>
+</html>
